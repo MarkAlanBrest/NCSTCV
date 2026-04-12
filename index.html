@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NCST Learning Resource Library</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&family=DM+Mono:wght@500&display=swap');
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --navy:#0f2744;--navy2:#1a3a5c;--blue:#2563a8;--blue-light:#e8f1fb;
+    --gold:#c8942a;--border:#d1dce8;--text:#0f2744;--muted:#5a6a7e;
+    --bg:#f5f8fc;--white:#fff;--green:#1a6b3a;--green-bg:#e8f5ee;--radius:10px
+  }
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6}
+  .shell{max-width:780px;margin:0 auto;padding:1.5rem 1rem 3rem}
+
+  .topbar{background:var(--navy);border-radius:var(--radius);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;gap:12px;flex-wrap:wrap}
+  .topbar-left{display:flex;align-items:center;gap:10px}
+  .logo{width:38px;height:38px;background:var(--gold);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:#fff;flex-shrink:0}
+  .topbar-title{font-size:15px;font-weight:500;color:#fff}
+  .topbar-sub{font-size:11px;color:#8aaac8;margin-top:1px}
+  .badge{background:rgba(200,148,42,.2);color:#f0c060;font-size:10px;font-weight:500;padding:4px 10px;border-radius:20px;border:1px solid rgba(200,148,42,.4);white-space:nowrap}
+
+  .intro{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius);padding:1rem 1.25rem;margin-bottom:1.25rem;font-size:13px;color:var(--muted)}
+  .intro strong{color:var(--navy)}
+
+  .search-card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius);padding:1.25rem;margin-bottom:1rem}
+  .section-label{font-size:11px;font-weight:500;color:var(--muted);text-transform:uppercase;letter-spacing:.4px;margin-bottom:.6rem}
+
+  input,select{width:100%;padding:8px 12px;border:0.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border-color .15s}
+  input:focus,select:focus{border-color:var(--blue)}
+
+  .db-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px;margin:10px 0}
+  .db-btn{display:flex;align-items:center;gap:8px;padding:9px 12px;border:0.5px solid var(--border);border-radius:8px;background:var(--white);cursor:pointer;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--navy);transition:all .15s;text-align:left}
+  .db-btn:hover{border-color:var(--blue);background:var(--blue-light)}
+  .db-btn.selected{border-color:var(--blue);background:var(--blue-light);color:var(--blue)}
+  .db-icon{width:20px;height:20px;border-radius:4px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:500;color:#fff;flex-shrink:0}
+  .db-icon.gs{background:#4285f4}
+  .db-icon.co{background:#0f2744}
+  .db-icon.dj{background:#1a6b3a}
+  .db-icon.ie{background:#00629B}
+  .db-icon.os{background:#e55b2d}
+  .db-icon.ni{background:#b52b27}
+  .db-check{width:14px;height:14px;border:1.5px solid var(--border);border-radius:3px;flex-shrink:0;margin-left:auto;display:flex;align-items:center;justify-content:center;transition:all .15s}
+  .db-btn.selected .db-check{background:var(--blue);border-color:var(--blue)}
+  .db-btn.selected .db-check::after{content:'';display:block;width:4px;height:7px;border:1.5px solid #fff;border-top:none;border-left:none;transform:rotate(45deg) translate(-1px,-1px)}
+
+  .search-row{display:flex;gap:8px;margin-top:10px}
+  .search-input{flex:1;padding:9px 12px;border:0.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--text);background:var(--white);outline:none;transition:border-color .15s;width:auto}
+  .search-input:focus{border-color:var(--blue)}
+  .search-btn{padding:9px 18px;background:var(--navy);color:#fff;border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;cursor:pointer;white-space:nowrap;transition:background .15s}
+  .search-btn:hover{background:var(--navy2)}
+  .hint{font-size:11px;color:var(--muted);margin-top:6px}
+
+  .divider{border:none;border-top:0.5px solid var(--border);margin:1.5rem 0}
+
+  .program-nav{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:1rem}
+  .pnav{padding:5px 13px;border-radius:20px;font-size:12px;font-weight:500;cursor:pointer;border:0.5px solid var(--border);background:var(--white);color:var(--muted);transition:all .15s}
+  .pnav:hover{border-color:#8aaac8;color:var(--navy)}
+  .pnav.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+
+  .kw-wrap{position:relative;margin-bottom:1rem}
+  .kw-wrap input{padding-left:32px}
+  .kw-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:14px;height:14px;opacity:.3;pointer-events:none}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+  .res-card{background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius);padding:.9rem 1rem;text-decoration:none;display:block;transition:border-color .15s}
+  .res-card:hover{border-color:var(--blue)}
+  .res-header{display:flex;align-items:flex-start;justify-content:space-between;gap:6px;margin-bottom:4px}
+  .res-name{font-size:13px;font-weight:500;color:var(--navy);line-height:1.3}
+  .ext-icon{width:11px;height:11px;opacity:.25;flex-shrink:0;margin-top:2px}
+  .res-desc{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:7px}
+  .tag-row{display:flex;gap:4px;flex-wrap:wrap}
+  .tag{font-size:10px;font-weight:500;padding:2px 7px;border-radius:10px}
+  .tag-all{background:#e8f1fb;color:#185FA5}
+  .tag-auto{background:#e8f5ee;color:#1a6b3a}
+  .tag-diesel{background:#fdf3e0;color:#854F0B}
+  .tag-elec{background:#e8f1fb;color:#0C447C}
+  .tag-maint{background:#eeedfe;color:#3C3489}
+  .tag-weld{background:#faece7;color:#712B13}
+  .tag-hvac{background:#e1f5ee;color:#085041}
+  .tag-build{background:#f1efe8;color:#444441}
+  .tag-machine{background:#fbeaf0;color:#72243E}
+  .tag-cdl{background:#fdf3e0;color:#412402}
+  .tag-moto{background:#faece7;color:#993C1D}
+  .no-results{text-align:center;padding:2.5rem;color:var(--muted);font-size:13px;grid-column:1/-1}
+
+  .footer{margin-top:2rem;padding:1rem 1.25rem;background:var(--white);border:0.5px solid var(--border);border-radius:var(--radius);font-size:12px;color:var(--muted)}
+  .footer strong{color:var(--navy)}
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="logo">LRS</div>
+      <div>
+        <div class="topbar-title">NCST Learning Resource Library</div>
+        <div class="topbar-sub">New Castle School of Trades &mdash; ACCSC Section II-7 Compliant</div>
+      </div>
+    </div>
+    <div class="badge">ACCSC LRS</div>
+  </div>
+
+  <div class="intro">
+    <p><strong>Welcome to the NCST Learning Resource Library.</strong> Search open-access databases below, or browse the curated collection filtered by your program. All resources are free and available 24/7.</p>
+  </div>
+
+  <!-- MULTI-DATABASE SEARCH -->
+  <div class="section-label">Search open-access databases</div>
+  <div class="search-card">
+    <div class="section-label">Choose databases to search</div>
+    <div class="db-grid">
+      <div class="db-btn selected" data-db="scholar" onclick="toggleDb(this)">
+        <div class="db-icon gs">GS</div>
+        <span>Google Scholar</span>
+        <div class="db-check"></div>
+      </div>
+      <div class="db-btn selected" data-db="core" onclick="toggleDb(this)">
+        <div class="db-icon co">CO</div>
+        <span>CORE</span>
+        <div class="db-check"></div>
+      </div>
+      <div class="db-btn selected" data-db="doaj" onclick="toggleDb(this)">
+        <div class="db-icon dj">DJ</div>
+        <span>DOAJ</span>
+        <div class="db-check"></div>
+      </div>
+      <div class="db-btn" data-db="ieee" onclick="toggleDb(this)">
+        <div class="db-icon ie">IE</div>
+        <span>IEEE Xplore</span>
+        <div class="db-check"></div>
+      </div>
+      <div class="db-btn" data-db="osha" onclick="toggleDb(this)">
+        <div class="db-icon os">OS</div>
+        <span>OSHA Pub.</span>
+        <div class="db-check"></div>
+      </div>
+      <div class="db-btn" data-db="niosh" onclick="toggleDb(this)">
+        <div class="db-icon ni">NI</div>
+        <span>NIOSH / CDC</span>
+        <div class="db-check"></div>
+      </div>
+    </div>
+    <div class="search-row">
+      <input class="search-input" type="text" id="searchInput" placeholder="e.g. diesel injection pump troubleshooting, OSHA lockout tagout..." onkeydown="if(event.key==='Enter')doSearch()">
+      <button class="search-btn" onclick="doSearch()">Search</button>
+    </div>
+    <div class="hint" id="searchHint">Select at least one database and enter a keyword to search. Each selected database will open in a new tab.</div>
+  </div>
+
+  <hr class="divider">
+
+  <!-- BROWSE -->
+  <div class="section-label">Browse by program</div>
+  <div class="program-nav">
+    <span class="pnav active" data-filter="all">All programs</span>
+    <span class="pnav" data-filter="auto">Automotive</span>
+    <span class="pnav" data-filter="diesel">Diesel</span>
+    <span class="pnav" data-filter="elec">Electrical</span>
+    <span class="pnav" data-filter="maint">Industrial Maint.</span>
+    <span class="pnav" data-filter="weld">Welding</span>
+    <span class="pnav" data-filter="hvac">HVAC / Refrig.</span>
+    <span class="pnav" data-filter="build">Building Tech</span>
+    <span class="pnav" data-filter="machine">Machinist</span>
+    <span class="pnav" data-filter="cdl">CDL / Heavy Equip.</span>
+    <span class="pnav" data-filter="moto">Motorcycle</span>
+  </div>
+
+  <div class="kw-wrap">
+    <svg class="kw-icon" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="4.5" stroke="#0f2744" stroke-width="1.5"/><path d="M10 10L14 14" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg>
+    <input type="text" id="browseSearch" placeholder="Filter resources by keyword...">
+  </div>
+
+  <div class="grid" id="grid">
+
+    <!-- ALL PROGRAMS -->
+    <a class="res-card" href="https://core.ac.uk" target="_blank" data-p="all auto diesel elec maint weld hvac build machine cdl moto">
+      <div class="res-header"><div class="res-name">CORE — Open Research Papers</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">90M+ peer-reviewed open-access papers across all disciplines. Best first stop for any research topic.</div>
+      <div class="tag-row"><span class="tag tag-all">All programs</span></div>
+    </a>
+
+    <a class="res-card" href="https://scholar.google.com" target="_blank" data-p="all auto diesel elec maint weld hvac build machine cdl moto">
+      <div class="res-header"><div class="res-name">Google Scholar</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Broad academic search covering technical articles, patents, and manuals. Pair with Unpaywall for free PDFs.</div>
+      <div class="tag-row"><span class="tag tag-all">All programs</span></div>
+    </a>
+
+    <a class="res-card" href="https://unpaywall.org" target="_blank" data-p="all auto diesel elec maint weld hvac build machine cdl moto">
+      <div class="res-header"><div class="res-name">Unpaywall</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Free browser extension — finds legal free PDFs of journal articles automatically. Install once, use everywhere.</div>
+      <div class="tag-row"><span class="tag tag-all">All programs</span></div>
+    </a>
+
+    <a class="res-card" href="https://doaj.org" target="_blank" data-p="all auto diesel elec maint weld hvac build machine cdl moto">
+      <div class="res-header"><div class="res-name">DOAJ — Open Access Journals</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Directory of peer-reviewed open-access journals across engineering, technology, and health sciences.</div>
+      <div class="tag-row"><span class="tag tag-all">All programs</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.osha.gov/publications" target="_blank" data-p="all auto diesel elec maint weld hvac build machine cdl moto">
+      <div class="res-header"><div class="res-name">OSHA Publications</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Official safety standards, regulations, hazard alerts, and training materials. Required reading for all trades.</div>
+      <div class="tag-row"><span class="tag tag-all">All trades</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.cdc.gov/niosh" target="_blank" data-p="all auto diesel elec maint weld hvac build machine cdl moto">
+      <div class="res-header"><div class="res-name">NIOSH</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">National Institute for Occupational Safety and Health. Research, hazard alerts, and health guidelines for trade workers.</div>
+      <div class="tag-row"><span class="tag tag-all">All trades</span></div>
+    </a>
+
+    <a class="res-card" href="https://openstax.org" target="_blank" data-p="all auto diesel elec maint weld hvac build machine cdl moto">
+      <div class="res-header"><div class="res-name">OpenStax Free Textbooks</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Free peer-reviewed college textbooks covering physics, math, and chemistry. Downloadable PDF.</div>
+      <div class="tag-row"><span class="tag tag-all">All programs</span></div>
+    </a>
+
+    <a class="res-card" href="https://open.umn.edu/opentextbooks" target="_blank" data-p="all auto diesel elec maint weld hvac build machine cdl moto">
+      <div class="res-header"><div class="res-name">Open Textbook Library</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Peer-reviewed free textbooks for trades, technology, and science. Reviewed by instructors.</div>
+      <div class="tag-row"><span class="tag tag-all">All programs</span></div>
+    </a>
+
+    <!-- AUTOMOTIVE / DIESEL -->
+    <a class="res-card" href="https://www.sae.org/publications" target="_blank" data-p="auto diesel">
+      <div class="res-header"><div class="res-name">SAE International</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Society of Automotive Engineers technical papers and standards for automotive and diesel technology.</div>
+      <div class="tag-row"><span class="tag tag-auto">Automotive</span><span class="tag tag-diesel">Diesel</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.epa.gov/vehicles-and-engines" target="_blank" data-p="auto diesel">
+      <div class="res-header"><div class="res-name">EPA Vehicles &amp; Engines</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Emissions standards, fuel systems, and compliance guidance for automotive and diesel programs.</div>
+      <div class="tag-row"><span class="tag tag-auto">Automotive</span><span class="tag tag-diesel">Diesel</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.nhtsa.gov/vehicle-safety" target="_blank" data-p="auto">
+      <div class="res-header"><div class="res-name">NHTSA Vehicle Safety</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Federal vehicle safety standards, recall databases, and crash test data.</div>
+      <div class="tag-row"><span class="tag tag-auto">Automotive</span></div>
+    </a>
+
+    <!-- CDL / DIESEL -->
+    <a class="res-card" href="https://www.fmcsa.dot.gov/regulations" target="_blank" data-p="diesel cdl">
+      <div class="res-header"><div class="res-name">FMCSA Regulations</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Federal Motor Carrier Safety rules. Essential for CDL, heavy equipment, and diesel programs.</div>
+      <div class="tag-row"><span class="tag tag-diesel">Diesel</span><span class="tag tag-cdl">CDL</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.dot.gov/regulations" target="_blank" data-p="diesel cdl">
+      <div class="res-header"><div class="res-name">DOT Regulations</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Dept. of Transportation regulations covering commercial vehicles, hazmat, and driver qualifications.</div>
+      <div class="tag-row"><span class="tag tag-diesel">Diesel</span><span class="tag tag-cdl">CDL</span></div>
+    </a>
+
+    <!-- ELECTRICAL -->
+    <a class="res-card" href="https://www.nfpa.org/codes-and-standards/nfpa-70-standard-development/70" target="_blank" data-p="elec maint build">
+      <div class="res-header"><div class="res-name">NFPA 70 — National Electrical Code</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Free NEC standards access. Required reference for electrical and building technology students.</div>
+      <div class="tag-row"><span class="tag tag-elec">Electrical</span><span class="tag tag-build">Building</span></div>
+    </a>
+
+    <a class="res-card" href="https://ieeexplore.ieee.org/Xplore/home.jsp" target="_blank" data-p="elec maint">
+      <div class="res-header"><div class="res-name">IEEE Xplore Open Access</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Thousands of open-access papers on electrical engineering and industrial power systems.</div>
+      <div class="tag-row"><span class="tag tag-elec">Electrical</span><span class="tag tag-maint">Industrial Maint.</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.energy.gov/eere/electricvehicles/electric-vehicle-basics" target="_blank" data-p="elec auto">
+      <div class="res-header"><div class="res-name">DOE — Electric Vehicle Resources</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Technical resources on EV systems, charging infrastructure, and electrical technology from the Dept. of Energy.</div>
+      <div class="tag-row"><span class="tag tag-elec">Electrical</span><span class="tag tag-auto">Automotive</span></div>
+    </a>
+
+    <!-- WELDING -->
+    <a class="res-card" href="https://www.aws.org/standards-and-publications/aws-standards" target="_blank" data-p="weld">
+      <div class="res-header"><div class="res-name">AWS Welding Standards</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">American Welding Society codes, procedures, and safety standards including AWS D1.1 structural welding.</div>
+      <div class="tag-row"><span class="tag tag-weld">Welding</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.lincolnelectric.com/en-us/support/welding-how-to" target="_blank" data-p="weld">
+      <div class="res-header"><div class="res-name">Lincoln Electric — Welding Guides</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Free technical welding guides, process documentation, and how-to resources from an industry-leading manufacturer.</div>
+      <div class="tag-row"><span class="tag tag-weld">Welding</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.osha.gov/welding-cutting-brazing" target="_blank" data-p="weld build maint">
+      <div class="res-header"><div class="res-name">OSHA Welding Safety</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">OSHA welding, cutting, and brazing standards including fume hazards, fire risks, and PPE requirements.</div>
+      <div class="tag-row"><span class="tag tag-weld">Welding</span><span class="tag tag-build">Building</span></div>
+    </a>
+
+    <!-- HVAC -->
+    <a class="res-card" href="https://www.ashrae.org/technical-resources/free-resources" target="_blank" data-p="hvac">
+      <div class="res-header"><div class="res-name">ASHRAE Free Resources</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">HVAC/R standards, guides, and handbooks from the American Society of Heating, Refrigerating and A/C Engineers.</div>
+      <div class="tag-row"><span class="tag tag-hvac">HVAC / Refrigeration</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.epa.gov/section608" target="_blank" data-p="hvac">
+      <div class="res-header"><div class="res-name">EPA Section 608 — Refrigerant Rules</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">EPA refrigerant handling regulations and Section 608 certification requirements for HVAC technicians.</div>
+      <div class="tag-row"><span class="tag tag-hvac">HVAC / Refrigeration</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.energy.gov/energysaver/heat-pump-systems" target="_blank" data-p="hvac elec">
+      <div class="res-header"><div class="res-name">DOE — HVAC Energy Resources</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Heat pump systems, cooling efficiency, and HVAC technology resources from the Dept. of Energy.</div>
+      <div class="tag-row"><span class="tag tag-hvac">HVAC</span><span class="tag tag-elec">Electrical</span></div>
+    </a>
+
+    <!-- BUILDING -->
+    <a class="res-card" href="https://codes.iccsafe.org" target="_blank" data-p="build">
+      <div class="res-header"><div class="res-name">ICC Building Codes</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">International Code Council building and construction codes — IBC, IRC, and PA-applicable standards.</div>
+      <div class="tag-row"><span class="tag tag-build">Building Tech</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.osha.gov/construction" target="_blank" data-p="build weld cdl">
+      <div class="res-header"><div class="res-name">OSHA Construction Safety</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">OSHA Part 1926 standards — fall protection, scaffolding, excavation, and general construction site safety.</div>
+      <div class="tag-row"><span class="tag tag-build">Building Tech</span><span class="tag tag-weld">Welding</span></div>
+    </a>
+
+    <!-- MACHINIST -->
+    <a class="res-card" href="https://www.nist.gov/publications" target="_blank" data-p="machine">
+      <div class="res-header"><div class="res-name">NIST Publications</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Metrology, precision measurement, CNC, and manufacturing standards from the National Institute of Standards and Technology.</div>
+      <div class="tag-row"><span class="tag tag-machine">Machinist</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.asme.org/codes-standards" target="_blank" data-p="machine maint build">
+      <div class="res-header"><div class="res-name">ASME Standards</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">ASME codes for pressure vessels, piping, and manufacturing. Includes ASME Y14.5 GD&amp;T standard.</div>
+      <div class="tag-row"><span class="tag tag-machine">Machinist</span><span class="tag tag-maint">Industrial Maint.</span></div>
+    </a>
+
+    <!-- MOTORCYCLE -->
+    <a class="res-card" href="https://www.nhtsa.gov/road-safety/motorcycles" target="_blank" data-p="moto">
+      <div class="res-header"><div class="res-name">NHTSA Motorcycle Safety</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">Federal motorcycle safety standards, recall data, and technical information from NHTSA.</div>
+      <div class="tag-row"><span class="tag tag-moto">Motorcycle</span></div>
+    </a>
+
+    <a class="res-card" href="https://www.epa.gov/regulations-emissions-vehicles-and-engines/motorcycles" target="_blank" data-p="moto auto">
+      <div class="res-header"><div class="res-name">EPA Motorcycle Emissions</div><svg class="ext-icon" viewBox="0 0 12 12" fill="none"><path d="M2 10L10 2M10 2H6M10 2V6" stroke="#0f2744" stroke-width="1.5" stroke-linecap="round"/></svg></div>
+      <div class="res-desc">EPA emissions standards and compliance requirements for motorcycles and small engines.</div>
+      <div class="tag-row"><span class="tag tag-moto">Motorcycle</span><span class="tag tag-auto">Automotive</span></div>
+    </a>
+
+    <div class="no-results" id="noResults" style="display:none">No resources match your search. Try a different keyword or program filter.</div>
+  </div>
+
+  <div class="footer">
+    <p><strong>New Castle School of Trades</strong> &mdash; Learning Resource System maintained in compliance with ACCSC Standards of Accreditation, Section II-7. All resources are free and open-access. Questions? Contact your LRS Coordinator or program instructor.</p>
+  </div>
+
+</div>
+
+<script>
+  const DB_URLS = {
+    scholar: q => 'https://scholar.google.com/scholar?q=' + encodeURIComponent(q),
+    core:    q => 'https://core.ac.uk/search?q=' + encodeURIComponent(q),
+    doaj:    q => 'https://doaj.org/search/articles?query=' + encodeURIComponent(q),
+    ieee:    q => 'https://ieeexplore.ieee.org/search/searchresult.jsp?queryText=' + encodeURIComponent(q),
+    osha:    q => 'https://www.osha.gov/search?searchText=' + encodeURIComponent(q),
+    niosh:   q => 'https://www.cdc.gov/niosh/search.html?query=' + encodeURIComponent(q)
+  };
+
+  function toggleDb(el) {
+    el.classList.toggle('selected');
+  }
+
+  function doSearch() {
+    const q = document.getElementById('searchInput').value.trim();
+    if (!q) {
+      document.getElementById('searchHint').textContent = 'Please enter a search term first.';
+      return;
+    }
+    const selected = document.querySelectorAll('.db-btn.selected');
+    if (!selected.length) {
+      document.getElementById('searchHint').textContent = 'Please select at least one database.';
+      return;
+    }
+    selected.forEach(btn => {
+      const db = btn.dataset.db;
+      if (DB_URLS[db]) window.open(DB_URLS[db](q), '_blank');
+    });
+    const names = Array.from(selected).map(b => b.querySelector('span').textContent).join(', ');
+    document.getElementById('searchHint').textContent = 'Opened ' + selected.length + ' tab(s): ' + names;
+  }
+
+  const cards = document.querySelectorAll('.res-card');
+  const noResults = document.getElementById('noResults');
+  let activeFilter = 'all';
+  let searchTerm = '';
+
+  function applyFilters() {
+    let visible = 0;
+    cards.forEach(c => {
+      const programs = c.dataset.p || '';
+      const name = c.querySelector('.res-name').textContent.toLowerCase();
+      const desc = c.querySelector('.res-desc').textContent.toLowerCase();
+      const matchFilter = activeFilter === 'all' || programs.includes(activeFilter);
+      const matchSearch = !searchTerm || name.includes(searchTerm) || desc.includes(searchTerm);
+      c.style.display = (matchFilter && matchSearch) ? 'block' : 'none';
+      if (matchFilter && matchSearch) visible++;
+    });
+    noResults.style.display = visible === 0 ? 'block' : 'none';
+  }
+
+  document.querySelectorAll('.pnav').forEach(p => {
+    p.addEventListener('click', () => {
+      document.querySelectorAll('.pnav').forEach(x => x.classList.remove('active'));
+      p.classList.add('active');
+      activeFilter = p.dataset.filter;
+      applyFilters();
+    });
+  });
+
+  document.getElementById('browseSearch').addEventListener('input', e => {
+    searchTerm = e.target.value.toLowerCase().trim();
+    applyFilters();
+  });
+</script>
+</body>
+</html>

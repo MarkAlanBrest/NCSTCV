@@ -1,2 +1,0 @@
-# NCSTCV
-Cover Letter Writer
