@@ -70,19 +70,25 @@
 async function init() {
     const output = document.getElementById("output");
 
-    // Detect course ID from URL path
-    const match = window.location.pathname.match(/courses\/(\d+)/);
-    if (!match) {
-        output.textContent = "Unable to detect course ID.";
+    // Get course_id from iframe URL
+    const url = new URL(window.location.href);
+    const courseId = url.searchParams.get("course_id");
+
+    if (!courseId) {
+        output.textContent = "Missing course_id. Make sure your Canvas iframe includes ?course_id={{course.id}}";
         return;
     }
-    const courseId = match[1];
 
     // Fetch logged-in student info
     const studentRes = await fetch(`/api/v1/users/self/profile`);
     const student = await studentRes.json();
 
-    // Fetch submissions
+    // Fetch teacher info (first teacher in the course)
+    const teacherRes = await fetch(`/api/v1/courses/${courseId}/teachers`);
+    const teachers = await teacherRes.json();
+    const teacherName = teachers.length > 0 ? teachers[0].short_name : "Your Teacher";
+
+    // Fetch submissions for THIS student
     const subRes = await fetch(
         `/api/v1/courses/${courseId}/students/submissions?student_ids[]=self&include[]=assignment&per_page=100`
     );
@@ -101,10 +107,12 @@ async function init() {
 
         const due = new Date(a.due_at);
 
+        // Missing in last 2 weeks
         if (sub.missing && due >= twoWeeksAgo && due <= now) {
             missing.push(a.name);
         }
 
+        // Upcoming in next 2 weeks
         if (due >= now && due <= twoWeeksAhead) {
             upcoming.push({
                 name: a.name,
@@ -134,7 +142,7 @@ async function init() {
         });
     }
 
-    msg += `\nThanks, Your Teacher`;
+    msg += `\nThanks, ${teacherName}`;
 
     output.textContent = msg;
 }
