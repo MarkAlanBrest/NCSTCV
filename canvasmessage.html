@@ -2,259 +2,207 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Your Course To-Do Summary</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Canvas Student Widget</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: Arial, sans-serif;
-    background: #f5f7fa;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-  }
-  .widget {
-    width: 460px;
-    background: white;
-    border-radius: 12px;
-    border: 1px solid #e0e4ea;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-  }
-  .header {
-    background: #185FA5;
-    padding: 14px 18px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-  .header h1 {
-    font-size: 16px;
-    font-weight: 600;
-    color: #E6F1FB;
-  }
-  .body {
-    padding: 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-  }
-  .greeting {
-    font-size: 14px;
-    color: #555;
-    line-height: 1.5;
-  }
-  .greeting strong { color: #222; }
-  .divider { height: 1px; background: #eee; }
-  .section-label {
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-  }
-  .section-label.missing { color: #993C1D; }
-  .section-label.upcoming { color: #185FA5; }
-  .chips { display: flex; flex-direction: column; gap: 6px; }
-  .chip {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    font-size: 13px;
-    line-height: 1.4;
-  }
-  .chip.missing-chip {
-    background: #FAECE7;
-    border: 1px solid #F0997B;
-    color: #4A1B0C;
-  }
-  .chip.upcoming-chip {
-    background: #E6F1FB;
-    border: 1px solid #85B7EB;
-    color: #042C53;
-  }
-  .chip.empty {
-    background: #f5f5f5;
-    border: 1px solid #ddd;
-    color: #888;
-  }
-  .chip-dot {
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin-top: 4px;
-  }
-  .missing-chip .chip-dot { background: #D85A30; }
-  .upcoming-chip .chip-dot { background: #378ADD; }
-  .chip-name { flex: 1; }
-  .chip-due {
-    font-size: 11px;
-    white-space: nowrap;
-    margin-top: 1px;
-  }
-  .missing-chip .chip-due { color: #993C1D; }
-  .upcoming-chip .chip-due { color: #185FA5; }
-  .footer { font-size: 13px; color: #666; }
-  .footer strong { color: #222; }
-  .loading { font-size: 13px; color: #888; }
-  .error-msg {
-    font-size: 13px;
-    color: #993C1D;
-    background: #FAECE7;
-    padding: 10px;
-    border-radius: 8px;
-    border: 1px solid #F0997B;
-  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px; }
+
+  .widget { max-width: 520px; background: #fff; border-radius: 12px; border: 1px solid #e0e0e0; overflow: hidden; }
+  .top-bar { height: 5px; background: #E62429; }
+  .body { padding: 20px 22px; }
+
+  .greeting { font-size: 20px; font-weight: 500; color: #111; margin-bottom: 3px; }
+  .subline { font-size: 13px; color: #888; margin-bottom: 20px; }
+
+  .section-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.07em; color: #999; margin-bottom: 8px; }
+
+  .block { margin-bottom: 18px; }
+
+  .item { display: flex; gap: 10px; align-items: flex-start; padding: 8px 12px; border-radius: 8px; margin-bottom: 6px; }
+  .item:last-child { margin-bottom: 0; }
+  .item-missing { background: #FCEBEB; }
+  .item-upcoming { background: #FAEEDA; }
+  .item-none { background: #f0f0f0; }
+
+  .icon { font-size: 14px; margin-top: 1px; flex-shrink: 0; }
+  .item-title { font-size: 14px; font-weight: 500; margin-bottom: 2px; }
+  .item-missing .item-title { color: #791F1F; }
+  .item-upcoming .item-title { color: #633806; }
+  .item-none .item-title { color: #555; }
+  .item-meta { font-size: 12px; }
+  .item-missing .item-meta { color: #A32D2D; }
+  .item-upcoming .item-meta { color: #854F0B; }
+  .item-none .item-meta { color: #777; }
+
+  .divider { border: none; border-top: 1px solid #eee; margin: 4px 0 14px; }
+
+  .note { font-size: 13px; color: #666; line-height: 1.6; border-top: 1px solid #eee; padding-top: 14px; margin-top: 4px; }
+  .teachers { margin-top: 12px; padding-top: 12px; border-top: 1px solid #eee; font-size: 13px; color: #666; }
+  .teachers strong { color: #222; font-weight: 500; }
+
+  .loading { text-align: center; padding: 30px; color: #888; font-size: 14px; }
+  .error { background: #FCEBEB; color: #791F1F; padding: 12px 16px; border-radius: 8px; font-size: 13px; margin: 10px 0; }
 </style>
 </head>
 <body>
-<div class="widget">
-  <div class="header">
-    <!-- Bell icon -->
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M10 2a6 6 0 0 1 6 6v3.5l1.4 2.1A1 1 0 0 1 16.5 15H3.5a1 1 0 0 1-.9-1.4L4 11.5V8a6 6 0 0 1 6-6z" fill="#B5D4F4"/>
-      <path d="M8 15a2 2 0 0 0 4 0" fill="#85B7EB"/>
-    </svg>
-    <h1>Your To-Do Summary</h1>
-  </div>
-  <div class="body" id="body">
-    <p class="loading">Loading your information…</p>
+
+<div class="widget" id="widget">
+  <div class="top-bar"></div>
+  <div class="body">
+    <div class="loading" id="loading">Loading your assignments...</div>
+    <div id="content" style="display:none"></div>
   </div>
 </div>
 
 <script>
-async function safeFetch(url) {
+const API_TOKEN = '14945~vFKZRJcFr6aGWrTHwVvJyNn99f3C9PE3FGWDJTMKHGWDXfD49JNnaEheNAfZk7wJ';
+const BASE_URL  = 'https://mytrades.instructure.com';
+const DAYS_BACK    = 14;
+const DAYS_FORWARD = 14;
+
+const headers = {
+  'Authorization': 'Bearer ' + API_TOKEN,
+  'Content-Type': 'application/json'
+};
+
+function fmtDate(d) {
+  return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+async function fetchAll(url) {
+  let results = [];
+  let next = url;
+  while (next) {
+    const res = await fetch(next, { headers });
+    if (!res.ok) throw new Error('Canvas API error: ' + res.status);
+    const data = await res.json();
+    results = results.concat(data);
+    const link = res.headers.get('Link') || '';
+    const match = link.match(/<([^>]+)>;\s*rel="next"/);
+    next = match ? match[1] : null;
+  }
+  return results;
+}
+
+async function run() {
+  const loading = document.getElementById('loading');
+  const content = document.getElementById('content');
+
   try {
-    const r = await fetch(url);
-    if (!r.ok) throw new Error(r.statusText);
-    return await r.json();
-  } catch (e) {
-    return null;
-  }
-}
+    const now   = new Date();
+    const start = new Date(now); start.setDate(start.getDate() - DAYS_BACK);
+    const end   = new Date(now); end.setDate(end.getDate() + DAYS_FORWARD);
 
-function chip(text, type, due) {
-  const d = document.createElement('div');
-  d.className = `chip ${type}-chip`;
-  const dot = document.createElement('span');
-  dot.className = 'chip-dot';
-  const name = document.createElement('span');
-  name.className = 'chip-name';
-  name.textContent = text;
-  d.appendChild(dot);
-  d.appendChild(name);
-  if (due) {
-    const dueEl = document.createElement('span');
-    dueEl.className = 'chip-due';
-    dueEl.textContent = due;
-    d.appendChild(dueEl);
-  }
-  return d;
-}
+    const user = await fetch(BASE_URL + '/api/v1/users/self', { headers }).then(r => r.json());
+    const firstName = user.name ? user.name.split(' ')[0] : 'there';
 
-function emptyChip(text) {
-  const d = document.createElement('div');
-  d.className = 'chip empty';
-  d.textContent = text;
-  return d;
-}
+    const courses = await fetchAll(BASE_URL + '/api/v1/courses?enrollment_state=active&per_page=50');
+    const activeCourses = courses.filter(c => !c.access_restricted_by_date);
 
-async function init() {
-  const body = document.getElementById('body');
-  const params = new URL(window.location.href).searchParams;
-  const courseId = params.get('course_id');
-
-  if (!courseId) {
-    body.innerHTML = '';
-    const e = document.createElement('p');
-    e.className = 'error-msg';
-    e.textContent = 'Missing course_id. Make sure your Canvas iframe includes ?course_id={{course.id}}';
-    body.appendChild(e);
-    return;
-  }
-
-  const [student, teachers, submissions] = await Promise.all([
-    safeFetch('/api/v1/users/self/profile'),
-    safeFetch(`/api/v1/courses/${courseId}/teachers`),
-    safeFetch(`/api/v1/courses/${courseId}/students/submissions?student_ids[]=self&include[]=assignment&per_page=100`)
-  ]);
-
-  if (!student || !submissions) {
-    body.innerHTML = '';
-    const e = document.createElement('p');
-    e.className = 'error-msg';
-    e.textContent = 'Could not load your data. Make sure this page is embedded inside Canvas.';
-    body.appendChild(e);
-    return;
-  }
-
-  const teacherName = (teachers && teachers.length > 0) ? teachers[0].short_name : 'Your Teacher';
-  const now = new Date();
-  const twoWeeksAgo = new Date(now - 14 * 864e5);
-  const twoWeeksAhead = new Date(now.getTime() + 14 * 864e5);
-  const missing = [], upcoming = [];
-
-  submissions.forEach(sub => {
-    const a = sub.assignment;
-    if (!a || !a.due_at) return;
-    const due = new Date(a.due_at);
-    if (sub.missing && due >= twoWeeksAgo && due <= now) {
-      missing.push(a.name);
+    const teacherMap = {};
+    for (const course of activeCourses) {
+      const enrollments = await fetchAll(
+        BASE_URL + `/api/v1/courses/${course.id}/enrollments?type[]=TeacherEnrollment&per_page=50`
+      );
+      enrollments.forEach(e => {
+        const name = e.user?.short_name || e.user?.name;
+        if (name && !teacherMap[name]) teacherMap[name] = course.name;
+      });
     }
-    if (due >= now && due <= twoWeeksAhead) {
-      upcoming.push({ name: a.name, due: due.toLocaleDateString() });
+
+    const missing = await fetchAll(
+      BASE_URL + `/api/v1/users/self/missing_submissions?per_page=50`
+    ).catch(() => []);
+
+    const missingFiltered = missing.filter(a => {
+      const due = a.due_at ? new Date(a.due_at) : null;
+      return due && due >= start && due <= now;
+    });
+
+    let upcoming = [];
+    for (const course of activeCourses) {
+      const assignments = await fetchAll(
+        BASE_URL + `/api/v1/courses/${course.id}/assignments?per_page=50&order_by=due_at`
+      ).catch(() => []);
+      assignments.forEach(a => {
+        if (!a.due_at) return;
+        const due = new Date(a.due_at);
+        if (due > now && due <= end && !a.locked_for_user) {
+          upcoming.push({ ...a, courseName: course.name });
+        }
+      });
     }
-  });
+    upcoming.sort((a, b) => new Date(a.due_at) - new Date(b.due_at));
 
-  body.innerHTML = '';
+    const dateRange = fmtDate(start) + ' – ' + fmtDate(end);
 
-  // Greeting
-  const greeting = document.createElement('p');
-  greeting.className = 'greeting';
-  greeting.innerHTML = `Hello, <strong>${student.name}</strong>. Here's a summary of your recent and upcoming assignments.`;
-  body.appendChild(greeting);
+    let missingHTML = '';
+    if (missingFiltered.length === 0) {
+      missingHTML = `<div class="item item-none"><div><p class="item-title">Nothing missing</p><p class="item-meta">Great work staying on top of things!</p></div></div>`;
+    } else {
+      missingFiltered.forEach(a => {
+        const course = activeCourses.find(c => c.id === a.course_id);
+        const courseName = course ? course.name : '';
+        missingHTML += `
+          <div class="item item-missing">
+            <span class="icon">&#9888;</span>
+            <div>
+              <p class="item-title">${a.name}</p>
+              <p class="item-meta">${courseName} &nbsp;&middot;&nbsp; was due ${fmtDate(a.due_at)}</p>
+            </div>
+          </div>`;
+      });
+    }
 
-  // Missing section
-  body.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
-  const missingLabel = document.createElement('p');
-  missingLabel.className = 'section-label missing';
-  missingLabel.textContent = 'Missing — last 2 weeks';
-  body.appendChild(missingLabel);
-  const missingChips = document.createElement('div');
-  missingChips.className = 'chips';
-  if (missing.length === 0) {
-    missingChips.appendChild(emptyChip('No missing assignments \uD83C\uDF89'));
-  } else {
-    missing.forEach(m => missingChips.appendChild(chip(m, 'missing')));
+    let upcomingHTML = '';
+    if (upcoming.length === 0) {
+      upcomingHTML = `<div class="item item-none"><div><p class="item-title">Nothing due in the next 14 days</p><p class="item-meta">Enjoy the break!</p></div></div>`;
+    } else {
+      upcoming.slice(0, 8).forEach(a => {
+        upcomingHTML += `
+          <div class="item item-upcoming">
+            <span class="icon">&#8594;</span>
+            <div>
+              <p class="item-title">${a.name}</p>
+              <p class="item-meta">${a.courseName} &nbsp;&middot;&nbsp; due ${fmtDate(a.due_at)}</p>
+            </div>
+          </div>`;
+      });
+    }
+
+    const teacherList = Object.entries(teacherMap)
+      .map(([name, course]) => `${name} <span style="color:#aaa">(${course})</span>`)
+      .join(' &nbsp;&middot;&nbsp; ');
+
+    content.innerHTML = `
+      <p class="greeting">Hello, ${firstName}!</p>
+      <p class="subline">Here's a look at your assignments &mdash; ${dateRange}</p>
+
+      <div class="block">
+        <p class="section-label">You missed these</p>
+        ${missingHTML}
+      </div>
+
+      <div class="block">
+        <p class="section-label">Coming up soon</p>
+        ${upcomingHTML}
+      </div>
+
+      ${missingFiltered.length > 0 ? `<p class="note">If you have questions about a missing assignment, reach out to your teacher as soon as possible &mdash; most are happy to work with you.</p>` : ''}
+
+      ${teacherList ? `<div class="teachers"><strong>Your teachers:</strong> ${teacherList}</div>` : ''}
+    `;
+
+    loading.style.display = 'none';
+    content.style.display = 'block';
+
+  } catch (err) {
+    loading.innerHTML = `<div class="error">Could not load data: ${err.message}<br><small>Check that your API token is valid and CORS is allowed.</small></div>`;
   }
-  body.appendChild(missingChips);
-
-  // Upcoming section
-  body.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
-  const upcomingLabel = document.createElement('p');
-  upcomingLabel.className = 'section-label upcoming';
-  upcomingLabel.textContent = 'Upcoming — next 2 weeks';
-  body.appendChild(upcomingLabel);
-  const upcomingChips = document.createElement('div');
-  upcomingChips.className = 'chips';
-  if (upcoming.length === 0) {
-    upcomingChips.appendChild(emptyChip('No upcoming assignments'));
-  } else {
-    upcoming.forEach(u => upcomingChips.appendChild(chip(u.name, 'upcoming', u.due)));
-  }
-  body.appendChild(upcomingChips);
-
-  // Footer / sign-off
-  body.appendChild(Object.assign(document.createElement('div'), { className: 'divider' }));
-  const footer = document.createElement('p');
-  footer.className = 'footer';
-  footer.innerHTML = `Thanks, <strong>${teacherName}</strong>`;
-  body.appendChild(footer);
 }
 
-init();
+run();
 </script>
 </body>
 </html>
