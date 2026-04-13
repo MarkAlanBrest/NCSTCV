@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Student To‑Do Summary</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background: #f5f7fa;
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+    }
+
+    .card {
+        width: 420px;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        overflow: hidden;
+    }
+
+    .card-header {
+        background: #007BFF; /* Electric Blue */
+        color: white;
+        padding: 14px 18px;
+        font-size: 18px;
+        font-weight: bold;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .card-body {
+        padding: 18px;
+        font-size: 15px;
+        line-height: 1.5;
+        color: #333;
+    }
+
+    .missing {
+        color: red;
+        font-weight: bold;
+    }
+
+    .btn {
+        width: 100%;
+        padding: 12px;
+        background: #007BFF;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-size: 16px;
+        cursor: pointer;
+        margin-top: 15px;
+    }
+
+    .btn:hover {
+        background: #005fcc;
+    }
+
+    pre {
+        white-space: pre-wrap;
+        background: #f0f4ff;
+        padding: 12px;
+        border-radius: 6px;
+        margin-top: 15px;
+        border: 1px solid #d0d8ff;
+    }
+</style>
+</head>
+<body>
+
+<div class="card">
+    <div class="card-header">
+        🔔 Personalized To‑Do Summary
+    </div>
+
+    <div class="card-body">
+        <button class="btn" onclick="generateMessage()">Generate Message</button>
+
+        <pre id="output"></pre>
+    </div>
+</div>
+
+<script>
+async function generateMessage() {
+    const output = document.getElementById("output");
+    output.textContent = "Loading...";
+
+    // Detect course + student from URL
+    const url = new URL(window.location.href);
+    const courseId = url.searchParams.get("course_id");
+    const studentId = url.searchParams.get("student_id");
+
+    if (!courseId || !studentId) {
+        output.textContent = "Missing course_id or student_id in URL.";
+        return;
+    }
+
+    // Fetch student info
+    const studentRes = await fetch(`/api/v1/courses/${courseId}/users/${studentId}`);
+    const student = await studentRes.json();
+
+    // Fetch teacher info
+    const teacherRes = await fetch(`/api/v1/users/self/profile`);
+    const teacher = await teacherRes.json();
+
+    // Fetch submissions + assignments
+    const subRes = await fetch(
+        `/api/v1/courses/${courseId}/students/submissions?student_ids[]=${studentId}&include[]=assignment&per_page=100`
+    );
+    const submissions = await subRes.json();
+
+    const now = new Date();
+    const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+    const twoWeeksAhead = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000);
+
+    const missing = [];
+    const upcoming = [];
+
+    submissions.forEach(sub => {
+        const a = sub.assignment;
+        if (!a || !a.due_at) return;
+
+        const due = new Date(a.due_at);
+
+        // Missing in last 2 weeks
+        if (sub.missing && due >= twoWeeksAgo && due <= now) {
+            missing.push(a.name);
+        }
+
+        // Upcoming in next 2 weeks
+        if (due >= now && due <= twoWeeksAhead) {
+            upcoming.push({
+                name: a.name,
+                due: due.toLocaleDateString()
+            });
+        }
+    });
+
+    // Build message
+    let msg = `${student.name}, Here is what you missed in the last 2 weeks\n`;
+
+    if (missing.length === 0) {
+        msg += "- No missing assignments 🎉\n";
+    } else {
+        missing.forEach(m => {
+            msg += `- Missing ${m}\n`;
+        });
+    }
+
+    msg += `\n${student.name}, Here is what is coming up in the next 2 weeks\n`;
+
+    if (upcoming.length === 0) {
+        msg += "- No upcoming assignments\n";
+    } else {
+        upcoming.forEach(u => {
+            msg += `- ${u.name}, Due Date ${u.due}\n`;
+        });
+    }
+
+    msg += `\nThanks, ${teacher.short_name}`;
+
+    output.textContent = msg;
+}
+</script>
+
+</body>
+</html>
