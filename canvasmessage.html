@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Student To‑Do Summary</title>
+<title>Your Course To‑Do Summary</title>
 <style>
     body {
         font-family: Arial, sans-serif;
@@ -44,22 +44,6 @@
         font-weight: bold;
     }
 
-    .btn {
-        width: 100%;
-        padding: 12px;
-        background: #007BFF;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        cursor: pointer;
-        margin-top: 15px;
-    }
-
-    .btn:hover {
-        background: #005fcc;
-    }
-
     pre {
         white-space: pre-wrap;
         background: #f0f4ff;
@@ -74,42 +58,33 @@
 
 <div class="card">
     <div class="card-header">
-        🔔 Personalized To‑Do Summary
+        🔔 Your To‑Do Summary
     </div>
 
     <div class="card-body">
-        <button class="btn" onclick="generateMessage()">Generate Message</button>
-
-        <pre id="output"></pre>
+        <pre id="output">Loading your information...</pre>
     </div>
 </div>
 
 <script>
-async function generateMessage() {
+async function init() {
     const output = document.getElementById("output");
-    output.textContent = "Loading...";
 
-    // Detect course + student from URL
-    const url = new URL(window.location.href);
-    const courseId = url.searchParams.get("course_id");
-    const studentId = url.searchParams.get("student_id");
-
-    if (!courseId || !studentId) {
-        output.textContent = "Missing course_id or student_id in URL.";
+    // Detect course ID from URL path
+    const match = window.location.pathname.match(/courses\/(\d+)/);
+    if (!match) {
+        output.textContent = "Unable to detect course ID.";
         return;
     }
+    const courseId = match[1];
 
-    // Fetch student info
-    const studentRes = await fetch(`/api/v1/courses/${courseId}/users/${studentId}`);
+    // Fetch logged-in student info
+    const studentRes = await fetch(`/api/v1/users/self/profile`);
     const student = await studentRes.json();
 
-    // Fetch teacher info
-    const teacherRes = await fetch(`/api/v1/users/self/profile`);
-    const teacher = await teacherRes.json();
-
-    // Fetch submissions + assignments
+    // Fetch submissions
     const subRes = await fetch(
-        `/api/v1/courses/${courseId}/students/submissions?student_ids[]=${studentId}&include[]=assignment&per_page=100`
+        `/api/v1/courses/${courseId}/students/submissions?student_ids[]=self&include[]=assignment&per_page=100`
     );
     const submissions = await subRes.json();
 
@@ -126,12 +101,10 @@ async function generateMessage() {
 
         const due = new Date(a.due_at);
 
-        // Missing in last 2 weeks
         if (sub.missing && due >= twoWeeksAgo && due <= now) {
             missing.push(a.name);
         }
 
-        // Upcoming in next 2 weeks
         if (due >= now && due <= twoWeeksAhead) {
             upcoming.push({
                 name: a.name,
@@ -161,10 +134,12 @@ async function generateMessage() {
         });
     }
 
-    msg += `\nThanks, ${teacher.short_name}`;
+    msg += `\nThanks, Your Teacher`;
 
     output.textContent = msg;
 }
+
+init();
 </script>
 
 </body>
